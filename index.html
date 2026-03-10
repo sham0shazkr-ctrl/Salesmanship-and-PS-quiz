@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Salesmanship Quiz</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --text: #1e293b;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); }
+        .question-container { margin-bottom: 25px; padding: 15px; border-bottom: 1px solid #e2e8f0; }
+        .question-text { font-weight: 600; margin-bottom: 12px; display: block; }
+        .options label { display: block; background: #f1f5f9; padding: 10px; margin: 5px 0; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .options label:hover { background: #e2e8f0; }
+        .options input { margin-right: 10px; }
+        #submit-btn { display: block; width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; margin-top: 20px; }
+        #submit-btn:hover { background: #1d4ed8; }
+        #result { margin-top: 20px; padding: 20px; text-align: center; font-size: 22px; font-weight: bold; display: none; border-radius: 8px; }
+        .correct { background: #dcfce7; color: #166534; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Sales & Marketing Mastery Quiz</h1>
+    <p style="text-align: center;">Answer all 50 questions to test your knowledge.</p>
+    <form id="quizForm">
+        <div id="questions"></div>
+        <button type="button" id="submit-btn" onclick="calculateScore()">Submit Quiz</button>
+    </form>
+    <div id="result"></div>
+</div>
+
+<script>
+    // Sample Data: You can expand this array to 50 questions
+    const quizData = [
+    // --- CO1: Fundamentals of Selling ---
+    { q: "What is the primary goal of consultative selling?", a: ["Closing the deal quickly", "Acting as an advisor to the customer", "Focusing on discounts", "Avoiding technical details"], correct: 1 },
+    { q: "The principle of 'customer orientation' emphasizes:", a: ["Short-term profits", "Prioritizing needs over product features", "Reducing marketing costs", "Eliminating competition"], correct: 1 },
+    { q: "Which type of selling involves adjusting the pitch based on customer cues?", a: ["Transactional selling", "Passive selling", "Adaptive selling", "Aggressive selling"], correct: 2 },
+    { q: "Salesmanship contributes to the national economy by:", a: ["Increasing revenue and employment", "Reducing government spending", "Limiting international trade", "Increasing taxes"], correct: 0 },
+    { q: "A modern view of salesmanship defines it as:", a: ["A one-way communication", "An educational process for the buyer", "Manipulating the customer", "A purely administrative task"], correct: 1 },
+    { q: "Which of these is NOT a feature of salesmanship?", a: ["Two-way communication", "Persuasion", "Coercion/Force", "Problem solving"], correct: 2 },
+    { q: "What is the first step in the traditional sales process?", a: ["Closing", "Presentation", "Prospecting", "Follow-up"], correct: 2 },
+    { q: "Effective handling of objections builds:", a: ["Customer fear", "Salesperson frustration", "Credibility and trust", "Product confusion"], correct: 2 },
+    { q: "The 'Multi-faceted' role of a salesperson includes being a:", a: ["Technician only", "Problem solver and psychologist", "Delivery driver", "Silent observer"], correct: 1 },
+    { q: "Aligning product benefits with specific customer needs is called:", a: ["Hard selling", "Consultative selling", "Cold calling", "Order taking"], correct: 1 },
+
+    // --- CO2: Consumer Behavior & Motives ---
+    { q: "A customer buying a branded shirt for social status is driven by:", a: ["Rational motive", "Emotional motive", "Habitual motive", "Safety motive"], correct: 1 },
+    { q: "Buying a product because 'everyone else has it' is:", a: ["Imitation motive", "Curiosity motive", "Fear motive", "Economy motive"], correct: 0 },
+    { q: "The best strategy for an indecisive customer is:", a: ["Pressuring them", "Providing clear comparisons", "Ignoring them", "Giving less information"], correct: 1 },
+    { q: "A suspicious customer primarily doubts the:", a: ["Store location", "Salesman's intentions", "Price of the product", "Packaging design"], correct: 1 },
+    { q: "A 'Dominant' customer expects the salesperson to be:", a: ["Very talkative", "Passive", "Confident and concise", "Indecisive"], correct: 2 },
+    { q: "Loyal customers are generally:", a: ["More sensitive to price", "Less sensitive to price", "Always looking for new brands", "Unimportant for profit"], correct: 1 },
+    { q: "Which motive is based on logic, price, and durability?", a: ["Emotional", "Rational", "Prestige", "Affection"], correct: 1 },
+    { q: "What should you NOT do with a discount-seeking customer?", a: ["Show value-added features", "Understand their reason", "Immediately slash the price", "Highlight quality"], correct: 2 },
+    { q: "Patronage motives refer to why a customer chooses a:", a: ["Specific product", "Specific brand", "Specific store", "Specific price"], correct: 2 },
+    { q: "A customer motivated by 'Curiosity' wants to:", a: ["Save money", "Try something new", "Show off", "Feel safe"], correct: 1 },
+
+    // --- CO3: AIDAS & Sales Techniques ---
+    { q: "In the AIDAS model, what follows 'Attention'?", a: ["Action", "Desire", "Interest", "Satisfaction"], correct: 2 },
+    { q: "The main objective of the 'Action' stage in AIDAS is:", a: ["Create awareness", "Get the order/purchase", "Explain features", "Build emotional appeal"], correct: 1 },
+    { q: "Which objection is 'I don't need this right now'?", a: ["Price objection", "Timing objection", "Trust objection", "Product objection"], correct: 1 },
+    { q: "Which is a 'Modern' method of prospecting?", a: ["Cold calling", "Social media engagement", "Door-to-door", "Landline directories"], correct: 1 },
+    { q: "Which is NOT a post-sale activity?", a: ["Installation", "Warranty service", "Prospecting", "Follow-up"], correct: 2 },
+    { q: "The 'Pre-approach' stage involves:", a: ["Closing the sale", "Researching the prospect", "Giving a demo", "Handling complaints"], correct: 1 },
+    { q: "A 'Canned' presentation is:", a: ["A memorized, fixed script", "Highly flexible", "Tailored for each client", "A video call"], correct: 0 },
+    { q: "A 'Sales Objection' is best defined as:", a: ["A total rejection", "A barrier to the purchase", "A sign of no interest", "A legal contract"], correct: 1 },
+    { q: "Incentives are provided to salespeople to:", a: ["Reduce work hours", "Increase sales performance", "Decrease supervision", "Lower product price"], correct: 1 },
+    { q: "The stage where a customer's 'Willingness to buy' is developed is:", a: ["Attention", "Interest", "Desire", "Action"], correct: 2 },
+    { q: "AIDA stands for:", a: ["Action, Interest, Desire, Attention", "Attention, Interest, Desire, Action", "Awareness, Intent, Detail, Action", "None of these"], correct: 1 },
+    { q: "Visual aids are most useful during which stage?", a: ["Prospecting", "Demonstration/Presentation", "Post-sale", "Pre-approach"], correct: 1 },
+    { q: "Which technique focuses on solving a specific problem for the client?", a: ["Product-oriented", "Problem-Solution method", "Hard sell", "Passive approach"], correct: 1 },
+    { q: "A referral comes from:", a: ["A cold call", "An existing satisfied customer", "A social media ad", "A competitor"], correct: 1 },
+    { q: "Closing a sale is:", a: ["The start of the process", "The point of getting the commitment", "Only for retail stores", "Unnecessary in B2B"], correct: 1 },
+
+    // --- CO4: Management, Ethics & Environment ---
+    { q: "What is the primary purpose of maintaining sales records?", a: ["Track employee attendance", "Record transactions and performance", "Monitor supplier contracts", "Calculate taxes only"], correct: 1 },
+    { q: "A 'Sales Report' is usually:", a: ["Raw data", "An analyzed summary of data", "A legal contract", "A brochure"], correct: 1 },
+    { q: "Which document legally binds a buyer and seller?", a: ["Delivery note", "Purchase order", "Sales agreement", "Sales receipt"], correct: 2 },
+    { q: "Weekly or monthly performance reports are called:", a: ["Forecast reports", "Periodic reports", "Comparative reports", "Inventory reports"], correct: 1 },
+    { q: "Store 'Atmospherics' include:", a: ["Lighting and music", "Product price", "Employee salaries", "Shipping costs"], correct: 0 },
+    { q: "Which element most influences impulse buying?", a: ["Sales manuals", "Store layout and placement", "Warranty terms", "Legal documents"], correct: 1 },
+    { q: "Ethical salesmanship emphasizes:", a: ["Concealing product flaws", "Honesty in presentation", "High-pressure tactics", "Ignoring customer needs"], correct: 1 },
+    { q: "A Sales Manual helps by:", a: ["Reducing prices", "Standardizing sales practices", "Avoiding customers", "Eliminating competition"], correct: 1 },
+    { q: "Sales records are essential for:", a: ["Future planning and control", "Increasing storage space", "Avoiding audits", "Reducing staff"], correct: 0 },
+    { q: "Departmental stores offer:", a: ["Only one product", "A wide range of products", "Free products only", "No customer service"], correct: 1 },
+    { q: "A 'Comparative Report' compares performance across:", a: ["Two different departments", "Different time periods", "Different salespeople", "All of the above"], correct: 3 },
+    { q: "The 'Store Environment' is also known as:", a: ["Digital marketing", "Retailing atmospherics", "Supply chain", "Back-office"], correct: 1 },
+    { q: "Which of these is a sales record?", a: ["Customer database", "Daily sales log", "Order forms", "All of the above"], correct: 3 },
+    { q: "Post-sale activities help in:", a: ["Generating new leads", "Customer retention", "Building brand loyalty", "All of the above"], correct: 3 },
+    { q: "Honesty in sales leads to:", a: ["Short-term loss", "Long-term success and trust", "Fewer sales", "Legal trouble"], correct: 1 }
+];
+
+
+    // Function to generate 50 placeholder questions if the array isn't full
+    function fillQuestions() {
+        const container = document.getElementById('questions');
+        // If you only have 3 real questions, this loop fills the rest to reach 50
+        for (let i = 0; i < 50; i++) {
+            const data = quizData[i] || { q: `Question ${i + 1}: What is a core principle of Salesmanship?`, a: ["Persistence", "Dishonesty", "Silence", "Speed"], correct: 0 };
+            
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-container';
+            qDiv.innerHTML = `
+                <span class="question-text">${i + 1}. ${data.q}</span>
+                <div class="options">
+                    ${data.a.map((opt, index) => `
+                        <label>
+                            <input type="radio" name="q${i}" value="${index}"> ${opt}
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(qDiv);
+        }
+    }
+
+    function calculateScore() {
+    let score = 0;
+    const total = 50;
+    
+    for (let i = 0; i < total; i++) {
+        const questionContainer = document.querySelectorAll('.question-container')[i];
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const correctAnswerIndex = quizData[i] ? quizData[i].correct : 0;
+        const allOptions = questionContainer.querySelectorAll('label');
+
+        // Reset styles first
+        allOptions.forEach(label => {
+            label.style.background = "#f1f5f9";
+            label.style.color = "var(--text)";
+        });
+
+        // Highlight the correct answer in Green
+        allOptions[correctAnswerIndex].style.background = "#dcfce7";
+        allOptions[correctAnswerIndex].style.color = "#166534";
+
+        if (selected) {
+            const selectedValue = parseInt(selected.value);
+            if (selectedValue === correctAnswerIndex) {
+                score++;
+            } else {
+                // Highlight the wrong answer in Red
+                allOptions[selectedValue].style.background = "#fee2e2";
+                allOptions[selectedValue].style.color = "#991b1b";
+            }
+        }
+    }
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    resultDiv.className = 'correct';
+    resultDiv.innerHTML = `You scored ${score} out of ${total}! (${(score / total) * 100}%)`;
+    
+    // Smooth scroll to the result at the bottom
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+
+    fillQuestions();
+</script>
+
+</body>
+</html>
